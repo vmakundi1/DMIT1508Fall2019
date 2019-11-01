@@ -13,3 +13,22 @@ where StudentID = 198933540
 update Student
 set BalanceOwing = BalanceOwing * 0.9
 where Province = 'AB'
+
+--delete which means remove the records from student--
+--delete from Student (we can use this to delete all details of students) but for certain records only, you have to add where--
+--delete from Student
+--where BalanceOwing > 500
+--note that this query did not work because there were other records dependent on that record. so you may have to go table by table to delete the records in each table
+--we found its dependent on 3 other tables
+
+--delete from Activity
+--where StudentId in (select StudentId from Student where BalanceOwing > 500)
+
+--delete from Registration
+--where StudentId in (select StudentId from Student where BalanceOwing > 500)
+
+--delete from Payment
+--where StudentId in (select StudentId from Student where BalanceOwing > 500)
+
+--delete from Student
+--where BalanceOwing > 500
