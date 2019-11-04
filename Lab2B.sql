@@ -74,7 +74,7 @@ join Paper on CustomerPaper.PaperID = Paper.PaperID
 
 
 --DML, Question 2(a)--
-insert into Region (RegionID, RegionName, SupervisorFirstName, SupervisorLastName, ZoneID)
+insert into Region (RegionID, Name, SupervisorFirstName, SupervisorLastName, ZoneID)
 Values (400, 'Calmar', 'David', 'Smithers', 3)
 go
 
