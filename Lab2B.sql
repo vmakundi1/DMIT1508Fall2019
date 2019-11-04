@@ -79,8 +79,8 @@ Values (400, 'Calmar', 'David', 'Smithers', 3)
 go
 
 --2nd part
-insert into Region (RegionID, RegionName, SupervisorName, SupervisorLastName, ZoneID)
-Values
+insert into Region (RegionID, Name, SupervisorFirstName, SupervisorLastName, ZoneID)
+Values (500, 'Thorsby', 'Jane', 'Jacobs', (select ZoneID from Region where RegionID = 300))
 go
 
 --DML, Question 2(b)--
