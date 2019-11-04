@@ -14,30 +14,55 @@ from DeliveryType
 group by DeliveryTypeID
 
 --Queries, Question 1(d)--
-Select FirstName + ' ' + LastName as 'Carrier name' from Carrier
-join Route on Carrier.CarrierID = Route.CarrierID
-join Customer on Customer.RouteID = Route.RouteID 
-where PrepaidTip > 100
+
 
 --Queries, Question 1(e)--
-select *
-from DeliveryType
+select Description
+from DeliveryType join CustomerPaper on DeliveryType.DeliveryTypeID = CustomerPaper.DeliveryTypeID
+join Customer on CustomerPaper.CustomerID = Customer.CustomerID
+
+
 
 --Queries, Question 1(f)--
+select *
+from Carrier
+join Route on Carrier.CarrierID = Route.CarrierID
+join Customer on Route.RouteID = Customer.RouteID
+
+
+
 --Queries, Question 1(g)--
-select * 
+select FirstName, LastName 
 from Customer
+where LEFT(LastName, 1)= 'S' --'Last name starts with S'--
 
 
 --Queries, Question 1(h)--
+select FirstName + ' ' + LastName as 'Carriers'
+from Carrier
+where LEN(FirstName)=3 and RIGHT(FirstName, 2) = 'ob'
+
+
 --Queries, Question 1(i)--
+select FirstName + ' ' + LastName as 'Carriers', RouteID
+from Carrier
+join Route on Carrier.CarrierID = Route.CarrierID
+where RouteID > = 0
+
+
 --Queries, Question 1(j)--
+select Description
+from DeliveryType join CustomerPaper on DeliveryType.DeliveryTypeID = CustomerPaper.DeliveryTypeID
+join Customer on CustomerPaper.CustomerID = Customer.CustomerID
+
+
+
 --Queries, Question 1(k)--
 --Queries, Question 1(l)--
 
 
 --DML, Question 2(a)--
-Insert into Region (RegionID, RegionName, SupervisorFirstName, SupervisorLastName, ZoneID)
+insert into Region (RegionID, RegionName, SupervisorFirstName, SupervisorLastName, ZoneID)
 Values (400, 'Calmar', 'David', 'Smithers', 3)
 go
 
