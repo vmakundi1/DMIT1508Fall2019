@@ -124,3 +124,99 @@ select * from itemtype
 select * from item
 select * from stafftype
 select * from staff
+
+--Use the Memories Forever database for this exercise.The current solution has the script to create it if you have not competed the create tables exercise.
+--If an update fails write a brief explanation why. Do not just quote the error message genereated by the server!
+--1. Update the following records in the ItemType Table:
+--OLD RECORD	NEW RECORD
+--ItemTypeID	ItemTypeDescription	ItemTypeID	ItemTypeDescription
+--1	Camera	5	Camera
+--2	Lights	2	Bright Lights
+
+select * from itemtype
+select * from item
+
+Update itemType
+Set ItemTypeID = 5
+where ItemTypeID = 1
+--Changing the Primary key value causes a related recorded in Item to lose its parent record in ItemType. 
+--Updating the primary key value is not recomended.
+
+Update itemType
+Set ItemTypeDescription = 'Bright Lights'
+where ItemTypeID = 2
+GO
+
+
+--2. Update the following records in the Item Table:
+--•	ItemID 1 is now $30/day and called a Canon G3
+--•	ItemID 4 is now ItemTypeID 5
+--•	ItemID 4 is now $30/day
+
+update Item
+Set 
+PricePerDay = 30,
+ItemDescription = 'Canon G3'
+where ItemID = 1
+
+update Item
+Set 
+ItemTypeID = 5
+where ItemID = 4	
+--There is no ItemTypeId 5. Foreign Key values must have a matching value in the parent table.
+
+update Item
+Set 
+PricePerDay  = 30
+where ItemID = 4
+	
+GO
+select * from staff
+
+--3.  Update the following records in the Staff Table:
+--•	StaffID 1 should have a wage of $19.00
+--•	StaffID 2 got married to StaffID 3! Update StaffID 2  with the following changes:
+--StaffLastName: Pic
+--Wage: $23.00
+--•	Update StaffID 12 to have a wage of 80 (note the message displayed)
+
+Update Staff
+Set
+Wage = 19
+where StaffID = 1
+
+Update Staff
+Set
+StaffLastName = 'pic',
+Wage = 23
+where StaffID = 2
+
+Update Staff
+Set
+Wage = 80
+where StaffID = 12
+--0 rows affected because updating a record that does not exist is not an error. 
+
+
+--Use the Memories Forever database for this exercise.The current solution has the script to create it if you have not competed the create tables exercise.
+--If a delete fails write a brief explanation why. Do not just quote the error message genereated by the server!
+--1.	Delete the Staff with StaffID 8
+--2.	Delete StaffTypeId 1
+--3.	Delete all the staff whose wage is less $21.66
+--4.	Try and Delete StaffTypeID 1 again. Why did it work this time?
+--5.	Delete ItemID 5
+
+Delete Staff where StaffID = 8
+--0 rows affected. Deleting records that do not exist does not cause an error
+
+Delete StaffType where StaffTypeID = 1
+--cannot Delete the stafftypeId 1 because that value is in the foreign key field for child records 
+
+Delete Staff where Wage < 21.66
+
+Delete StaffType where StaffTypeID = 1
+
+Delete Item where ItemID = 5
+
+ 
+
