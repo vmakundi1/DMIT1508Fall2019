@@ -14,12 +14,18 @@ from DeliveryType
 group by DeliveryTypeID
 
 --Queries, Question 1(d)--
+select PrePaidTip
+from Carrier join Route on Carrier.CarrierID = Route.CarrierID
+join Customer on Route.RouteID = Customer.RouteID
+
 
 
 --Queries, Question 1(e)--
 select Description
 from DeliveryType join CustomerPaper on DeliveryType.DeliveryTypeID = CustomerPaper.DeliveryTypeID
 join Customer on CustomerPaper.CustomerID = Customer.CustomerID
+
+
 
 
 
@@ -57,7 +63,13 @@ join Customer on CustomerPaper.CustomerID = Customer.CustomerID
 
 
 
+
 --Queries, Question 1(k)--
+select FirstName + ' ' + LastName as 'CustomerSummary'
+from Customer join CustomerPaper on Customer.CustomerID = CustomerPaper.CustomerID
+join Paper on CustomerPaper.PaperID = Paper.PaperID
+
+
 --Queries, Question 1(l)--
 
 
@@ -67,7 +79,7 @@ Values (400, 'Calmar', 'David', 'Smithers', 3)
 go
 
 --2nd part
-Insert into Region (RegionID, RegionName, SupervisorName, SupervisorLastName, ZoneID)
+insert into Region (RegionID, RegionName, SupervisorName, SupervisorLastName, ZoneID)
 Values
 go
 
