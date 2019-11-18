@@ -41,7 +41,7 @@ execute AddClub 100, 'Harry Potter Club'
 --8.	Create a stored procedure called ‘WithdrawStudent’ that accepts a StudentID, and OfferingCode as parameters. Withdraw the student by updating their Withdrawn value to ‘Y’ and subtract ½ of the cost of the course from their balance. If the result would be a negative balance set it to 0.
 
 --write a stored procedure to update a staff member last name
-
+go
 create procedure ChangeStaffLastName (@StaffID smallint = null, @LastName varchar(35) = null)
 as
 if(@StaffID is null or @LastName is null)
@@ -63,7 +63,7 @@ select * from Staff
 exec ChangeStaffLastName 287, 'Jones'
 
 --this procedure deletes a staff member
-
+go
 create procedure DeleteStaff(@StaffID smallint = null)
 as
 if(@StaffID is null)
@@ -74,4 +74,18 @@ begin
 	if(not exists(select StaffID from Staff where StaffID = @StaffID))
 	   raiserror('Staff member does not exist', 16, 1)
 	else
+	   if(exists(select OfferingCode from Offering where StaffID = @StaffID))
+	      raiserror('Dependent records exists in Offering Table. Cannot delete staff', 16, 1)
+	   else
+	   begin
+	      delete
+		  from Staff
+		  where StaffID = @StaffID
+		  if(@@ERROR <> 0)
+              raiserror('Delete did not work', 16, 1)
+	   end
 end
+--these are added later after executing the above 1st one below
+execute DeleteStaff 5
+
+--note for above, if i am deleting a staff member, it may not allow me because that member/table may have relatioship with other tables. for a example, a staff may be in offering courses
