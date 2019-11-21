@@ -1,18 +1,37 @@
 --VICTOR MAKUNDI LAB 3, DMIT1508 DATABASE FUNDAMENTALS
 --1--
-Create Procedure AddCarrier (@FirstName varchar(30) = null, @LastName varchar(30) = null, @Phone char(10) = null)
+
+create Procedure AddCarrier (@FirstName varchar(30) = null, @LastName varchar(30) = null, @Phone char(10) = null)
 as
-if @FirstName is null or @LastName is null
-       Begin
-			Raiserror ('Must provide First Name and Last Name', 16, 1)
-	   End
-else
-		Begin
-			if exists  (select FirstName, LastName
-						from Carrier 
-						where FirstName = @FirstName or LastName = @LastName)
-						Begin
-							Raiserror ('That carrier already exists', 16, 1)
-						End
-		End
-Return
+If @FirstName is null or @LastName is null
+	Begin
+	RaisError ('Must provide First and Last Name',16,1)
+	end
+else 
+    Begin 
+	    if exists (select FirstName, LastName from Carrier
+		           where FirstName = @FirstName AND LastName = @LastName)
+				   Begin
+						Raiserror ('That carrier already exists', 16, 1)
+				   end
+		else
+			Begin
+				Insert into Carrier (FirstName,LastName, Phone)
+				values (@FirstName,@LastName, @Phone)
+				end
+			If @@ERROR <>0
+				Begin
+				RaisError ('insert failed!',16,1)
+				end
+			else
+				Begin
+				select @@IDENTITY
+				End
+end
+
+exec AddCarrier
+
+--2--
+
+
+
