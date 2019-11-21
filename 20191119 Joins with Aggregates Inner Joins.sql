@@ -27,10 +27,18 @@ group by PaymentType.PaymentTypeDescription
  group by Student.StudentID, FirstName + ' ' + LastName
  having AVG(Registration.Mark) > 80
  
---6.what is the highest, lowest and average payment amount for each payment type Description? 
- 
+--6.what is the description, highest, lowest and average payment amount for each payment type Description? 
+select PaymentType.PaymentTypeDescription, MAX(Payment.Amount) as 'Max Payment', MIN(Payment.Amount) as 'Min Payment', AVG(Payment.Amount) as 'Average Payment'
+from Payment join PaymentType on Payment.PaymentTypeID = PaymentType.PaymentTypeID
+group by PaymentType.PaymentTypeDescription
 
 --7. How many students are there in each club? Show the clubName and the count
+select Club.ClubName, COUNT(*) 'Number of student'
+from Activity join Club on Activity.ClubID = Club.ClubID
+group by Club.ClubName
  
 --8. Which clubs have 3 or more students in them? Display the Club Names.
- 
+select Club.ClubName, COUNT(*) 'Number of student'
+from Activity join Club on Activity.ClubID = Club.ClubID
+group by Club.ClubName
+having COUNT(*) >= 3

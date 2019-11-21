@@ -1,0 +1,7 @@
+--a subquery/inner query/or a nested query is a query within another SQL and embedded within the where clause.
+--it is used to return data that will be used in the main query as a condition to further restrict the data to be retrieved
+--they can be used with the SELECT, INSERT, UPDATE and DELETE statements along with operators like in , between, +, -, > etc.
+--rules;
+--subqueries must be enclosed within ()
+--they can have only 1 column in the select clause unless multiple columns are in the main query for the subquery to compare its selected columns
+--an ORDER BY command cannot be used in a subquery. the main query can use an ORDER BY
