@@ -30,10 +30,13 @@ else
 end
 
 exec AddCarrier
-
+go
 --Question 2--
+--Write a stored procedure called UpdateZone that accepts the Zone ID, manager last 
+--name, manager first name, wage, and cell number. Raise an error message if that zone is 
+--not in the zone table. Otherwise, update the record for that zone
 
-Create Procedure UpdateZone (@ZoneID int = null, @Name varchar(50) = null, @ManagerFirstName varchar(30) = null, @ManagerLastName varchar(30) = null, @CellNumber char(10) = 10, @Wage smallmoney = null)
+create Procedure UpdateZone (@ZoneID int = null, @ManagerLastName varchar(30) = null, @ManagerFirstName varchar(30) = null, @Wage smallmoney = null, @CellNumber char(10) = null)
 as
 if @ZoneID is null or @ManagerFirstName is null or @ManagerLastName is null or @CellNumber is null or @Wage is null
 	Begin
@@ -58,6 +61,7 @@ else
 	End
 
 
+go
 
 --Question 3--
 --Write a stored procedure called DeleteDropSite that accepts a DropSiteID. If that drop 
@@ -83,6 +87,8 @@ else
 					select DropSite.DropSiteID, count(RouteID) as 'number of routes' from DropSite join Route on DropSite.DropSiteID = Route.DropSiteID group by DropSite.DropSiteID
 					End
 			End
+go
+
 
 
 --Question 4--
@@ -101,7 +107,7 @@ select FirstName, LastName, PC from Customer where
 end
 
 
-
+go
 
 --Question 6--
 --write a stored procedure called LookUpCustomer that accepts any part of a customer's last name.
