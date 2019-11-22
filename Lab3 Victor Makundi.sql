@@ -32,9 +32,6 @@ end
 exec AddCarrier
 go
 --Question 2--
---Write a stored procedure called UpdateZone that accepts the Zone ID, manager last 
---name, manager first name, wage, and cell number. Raise an error message if that zone is 
---not in the zone table. Otherwise, update the record for that zone
 
 create Procedure UpdateZone (@ZoneID int = null, @ManagerLastName varchar(30) = null, @ManagerFirstName varchar(30) = null, @Wage smallmoney = null, @CellNumber char(10) = null)
 as
@@ -93,9 +90,30 @@ go
 
 --Question 4--
 --write a stored procedure called LookUpZoneRegionCarrier that accepts a ZoneID. 
---if the ZoneID is nt valid, raise an appropriate error message, otherwise return all the
---zone Manager full names (as one column), RegionNames, RouteNames and Carriers full names
+--if the ZoneID is not valid, raise an appropriate error message, otherwise return all the
+--zone Manager full names (as one column), teNames and Carriers fRegionNames, Rouull names
 --(as one column) that are related to that zone
+
+create procedure LookUpZoneRegionCarrier (@ZoneID int = null)
+as
+if @ZoneID is null
+		begin
+		raiserror ('Must provide a ZoneID', 16, 1)
+		end
+else
+		begin
+		if not exists (select ZoneID from Zone where ZoneID = @ZoneID)
+				begin 
+				raiserror ('ZoneID does not exist', 16, 1)
+				end
+		else
+				begin
+				select ManagerFirstName + ' ' + ManagerLastName as 'ZoneManager full names', Region.Name + ' ' + Route.Name + ' ' + Carrier.FirstName + ' ' + Carrier.LastName 
+		End
+go
+
+ 
+
 
 --Question 5--
 --write a stored procedure called NoPapers that returns the Customer First name, LastName
@@ -103,9 +121,10 @@ go
 
 create procedure NoPapers 
 as
-select FirstName, LastName, PC from Customer where
+select FirstName, LastName, PC from Customer
+where CustomerID not in (select CustomerID from CustomerPaper)
+return
 end
-
 
 go
 
@@ -113,7 +132,7 @@ go
 --write a stored procedure called LookUpCustomer that accepts any part of a customer's last name.
 --Returns all the customer data for those customers from the customer table.
 
-Create Procedure LookUpCustomer (@LastName varchar(30) = null)
+alter Procedure LookUpCustomer (@LastName varchar(30) = null)
 as
 if @LastName is null
 		Begin
@@ -121,10 +140,11 @@ if @LastName is null
 		End
 else
 		Begin
-		select FirstName, LastName, Address, City, Province, PC, PrePaidTip, RouteID from Customer
-		return
+		select FirstName, LastName, Address, City, Province, PC, PrePaidTip, RouteID from Customer where LastName like '%'+@LastName+'%'
 		end
 		go
+
+
 
 
 --Question 7--
@@ -133,17 +153,60 @@ else
 --from their wage and the new zone manager wull have $1.00 added to their wage. Raise an appropriate error
 --message if the region transferred does not exist. Ensure all the necessary tables are updated as required
 
-create procedure TransferRegion (@RegionID int = null, ZoneID int = null)
+create procedure TransferRegion (@RegionID int = null, @ZoneID int = null)
+
 as
 if @RegionID is null or @ZoneID is null
 		Begin
 		Raiserror ('Must provide both RegionID & ZoneID', 16, 1)
 		End
-else
+Else
 		Begin
-		if not exists (select * from 
+			if not exists (select RegionID from Region where RegionID = @RegionID)
+				Raiserror ('Region does not exist', 16, 1)
+			else
+				begin
+					Declare @CurrentZoneManagerID int
+
+					select @CurrentZoneManagerID = zoneid from Region where RegionID = @RegionID
+					--Update the Region set zoneID=@ZoneID   where regionID=@regionID
+					Update
+				end
+		End
 
 
-					
 
 
+
+select * from Region
+select * from zone
+
+go
+--Question 8--
+--Write a stored procedure called RewardZones that will accept a number representing the
+--expected number of regions each Zone should have. Think of it as a performance target 
+--that each Zone Manager should meet. Update the wage by 10% for all Zone Managers 
+--that have more than that number of regions.
+
+create procedure RewardZones (@PerformanceTarget  int = null)
+as
+if @PerformanceTarget is null
+			begin
+			raiserror ('Please enter a number', 16, 1)
+			end
+else
+			begin
+			Update Zone
+			Set Wage = Wage * 1.1
+			where Zone.ZoneID =  (select Zone.ZoneID from Zone join Region on Zone.ZoneID = Region.ZoneID
+			group by Zone.ZoneID
+			having count(RegionID)>=@PerformanceTarget)
+				if  @@ERROR<>0
+					begin
+						raiserror('update failed',16,1)
+					end
+				else
+					begin
+						print('NO ZONE MEETS THE TARGET')
+					end
+			end
