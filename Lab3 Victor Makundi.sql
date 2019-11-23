@@ -89,13 +89,25 @@ else
 					End
 			else
 					Begin
-					Declare @RouteCount int
-					select DropSite.DropSiteID, count(RouteID) as 'number of routes' from DropSite join Route on DropSite.DropSiteID = Route.DropSiteID group by DropSite.DropSiteID
+						if exists (select * from DropSite join Route on DropSite.DropSiteID = Route.DropSiteID where Route.DropsiteID = @DropSiteID)
+					
+
+							begin
+							Raiserror ('You cannot delete this dropsite', 16, 1)
+						    end
+
+						    else
+							begin
+								delete DropSite where DropSiteID = @DropSiteID
+								if @@ERROR <> 0
+										begin
+										Raiserror ('Delete failed', 16, 1)
+										end
+
+							End
 					End
 			End
 go
-
- 
 
 
 --QUESTION 4--
@@ -227,7 +239,7 @@ Else
 				end
 		End
 
-exec TransferRegion 100, 4
+
 
 
 
