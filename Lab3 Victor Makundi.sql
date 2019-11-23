@@ -1,5 +1,10 @@
 --VICTOR MAKUNDI LAB 3, DMIT1508 DATABASE FUNDAMENTALS
+
 --Question 1--
+--Write a stored procedure called AddCarrier that accepts a carrier first name, last name
+--and phone number. If the carrier name being added is already in the Carrier table give an
+--appropriate error message. Otherwise, add the new carrier to the Carrier table and select
+--the new Carrier ID. 
 
 create Procedure AddCarrier (@FirstName varchar(30) = null, @LastName varchar(30) = null, @Phone char(10) = null)
 as
@@ -31,7 +36,11 @@ end
 
 exec AddCarrier
 go
---Question 2--
+
+--QUESTION 2--
+--Write a stored procedure called UpdateZone that accepts the Zone ID, manager last
+--name, manager first name, wage, and cell number. Raise an error message if that zone is 
+--not in the zone table. Otherwise, update the record for that zone. 
 
 create Procedure UpdateZone (@ZoneID int = null, @ManagerLastName varchar(30) = null, @ManagerFirstName varchar(30) = null, @Wage smallmoney = null, @CellNumber char(10) = null)
 as
@@ -60,7 +69,7 @@ else
 
 go
 
---Question 3--
+--QUESTION 3--
 --Write a stored procedure called DeleteDropSite that accepts a DropSiteID. If that drop 
 --site is not in the drop site table, raise an appropriate error message. If there are routes
 --with that DropSite, raise an appropriate error message. If there are no errors, delete the 
@@ -88,11 +97,11 @@ go
 
 
 
---Question 4--
---write a stored procedure called LookUpZoneRegionCarrier that accepts a ZoneID. 
---if the ZoneID is not valid, raise an appropriate error message, otherwise return all the
---zone Manager full names (as one column), teNames and Carriers fRegionNames, Rouull names
---(as one column) that are related to that zone
+--QUESTION 4--
+--4.	Write a stored procedure called LookUpZoneRegionCarrier that accepts a Zone ID. If the 
+--Zone ID is not valid raise an appropriate error message, otherwise return all the Zone
+--Manager full names (as one column), RegionNames , RouteNames, and Carriers full 
+--names (as one column) that are related to that Zone
 
 create procedure LookUpZoneRegionCarrier (@ZoneID int = null)
 as
@@ -108,14 +117,24 @@ else
 				end
 		else
 				begin
-				select ManagerFirstName + ' ' + ManagerLastName as 'ZoneManager full names', Region.Name + ' ' + Route.Name + ' ' + Carrier.FirstName + ' ' + Carrier.LastName 
+				select ManagerFirstName + ' ' + ManagerLastName as 'Manager Full Name', Region.Name + ' '+ Route.Name + ' ' + Carrier.FirstName + ' ' + Carrier.LastName as 'Area they Manage' from Zone
+				join Region on Zone.ZoneID = Region.ZoneID
+				join Route on Region.RegionID = Route.RegionID
+				join Carrier on Route.CarrierID = Carrier.CarrierID
+				where Zone.ZoneID = @ZoneID
+				return
+				end
 		End
+
 go
+
+
+
 
  
 
 
---Question 5--
+--QUESTION 5--
 --write a stored procedure called NoPapers that returns the Customer First name, LastName
 --and postal code of all the customers that are not currently receiving any papers. Do not use a join
 
@@ -128,7 +147,7 @@ end
 
 go
 
---Question 6--
+--QUESTION 6--
 --write a stored procedure called LookUpCustomer that accepts any part of a customer's last name.
 --Returns all the customer data for those customers from the customer table.
 
@@ -147,7 +166,7 @@ else
 
 
 
---Question 7--
+--QUESTION 7--
 --Write a procedure called TransferRegion that accepts a RegionID and a ZoneID. The procedure will transfer
 --a particular region from one zone to another. when the region is transferred, the old zone manager wil have $1 subtracted
 --from their wage and the new zone manager wull have $1.00 added to their wage. Raise an appropriate error
@@ -166,23 +185,53 @@ Else
 				Raiserror ('Region does not exist', 16, 1)
 			else
 				begin
-					Declare @CurrentZoneManagerID int
 
+					Declare @CurrentZoneManagerID int
 					select @CurrentZoneManagerID = zoneid from Region where RegionID = @RegionID
 					--Update the Region set zoneID=@ZoneID   where regionID=@regionID
-					Update
+					Begin transaction 
+					Update Region
+					Set ZoneID = @ZoneID
+					where RegionID = @RegionID
+					if @@ERROR <> 0
+							begin
+								Raiserror('Transfer failed', 16, 1)
+							end
+
+					else
+						begin
+						---update wage
+						Update Zone
+						Set Wage = Wage - 1
+						where ZoneID = @CurrentZoneManagerID
+						if @@ERROR <> 0
+								begin
+									Raiserror('Update of manager to be transferred failed', 16, 1)
+								end
+						else
+							begin
+							--update wage again to where the transfer is going
+							Update Zone
+							Set Wage = Wage + 1
+							where ZoneID = @ZoneID
+							if @@ERROR <> 0
+									begin
+										Raiserror('Update of manager wage failed', 16,1)
+										Rollback Transaction
+									end
+							end
+
+						end
+							
 				end
 		End
 
+exec TransferRegion 100, 4
 
 
-
-
-select * from Region
-select * from zone
 
 go
---Question 8--
+--QUESTION 8--
 --Write a stored procedure called RewardZones that will accept a number representing the
 --expected number of regions each Zone should have. Think of it as a performance target 
 --that each Zone Manager should meet. Update the wage by 10% for all Zone Managers 
