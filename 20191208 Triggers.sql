@@ -1,4 +1,4 @@
---What is a trigger?
+-+--What is a trigger?
 --it is an object that is compiled and stored in the database
 --it is associated with a specific table for a specific DML statement
 --for example, if we creare a trigger that is associated with INSERT operation on staff tables
