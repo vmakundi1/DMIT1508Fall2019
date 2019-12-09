@@ -59,11 +59,11 @@ go
 --QUESTION 3: Ensure that carriers do not have more than 3 routes. Should this be attempted
 --Should this be attempted, raise an error and do not save the changes
 
-create Trigger TR_Max3Routes_Insert_Update
+alter Trigger TR_Max3Routes_Insert_Update
 on Route
 for insert, update
 as
-if update (RouteID) AND @@rowcount > 0
+if update (CarrierID) AND @@rowcount > 0
 		Begin
 		if exists (Select * from Route join inserted on Route.RouteID = inserted.RouteID
 		group by inserted.RouteID  having count(*) > 3)
@@ -74,6 +74,11 @@ if update (RouteID) AND @@rowcount > 0
 		end
 return
 go
+
+select * from Route
+update Route
+set CarrierID = 3
+where RouteID = 10
 
 --QUESTION 4: Create a DeliveryTypeChanges table (not in a trigger). After an update is made where the value of the delivery-
 --charge changes, add a record to the table. Show the code for the trigger and the table
@@ -88,18 +93,30 @@ Create Table DeliveryTypeChanges
 	NewDeliveryCharge smallmoney not null
 	
 )
-
+go
 Create Trigger TR_DeliveryChargeChangesValues_Update
 On DeliveryTypeChanges
 for Update
 as
-if Update(OldDeliveryCharges) AND @@ROWCOUNT > 0
+if Update(OldDeliveryCharge) AND @@ROWCOUNT > 0
+		
 		Begin
 		insert into DeliveryTypeChanges( ChangeID, ChangeDateTime, DeliveryTypeDescription, OldDeliveryCharge, NewDeliveryCharge)
-		select inserted.ChangeID, getdate(), 
+		select inserted.ChangeID, getdate(), inserted.DeliveryTypeDescription, deleted.OldDeliveryCharge, inserted.NewDeliveryCharge 
+		from inserted inner join deleted on inserted.ChangeID = deleted.ChangeID
+		--where inserted.Deliverycharge <> deleted.Deliverycharge
 		end
+return
 
+go
 
+--insert into DeliveryTypeChanges (ChangeID, ChangeDateTime, DeliveryTypeDescription, OldDeliveryCharge, NewDeliveryCharge)
+--values (1, '20191209', 'Truck', 5,5)
+--go
+
+--select * from DeliveryTypeChanges
+
+--update 
 
 
 --QUESTION 5: Ensure that a route is not deleted if the route has customers. Should the route have customers,
@@ -137,19 +154,29 @@ go
 
 --QUESTION 6: Minimum wage is $15/hour. if a Zone Manager's wage is reduced below $15 set it to be $15
 
---create trigger TR_MinWageEnforce_Update
---on Zone
---for Update
---as
---if update(Wage) and @@ROWCOUNT > 0
---		Begin
---		if exists (select * from inserted inner join deleted on inserted.ZoneID = deleted.ZoneID
---		where inserted.Wage < 15)
---				Begin
---				Raiserror ('Sorry, zone manager wage cannot be increased by 15 percent', 16,1)
---				Rollback transaction
---				end
---		End
---return
+create trigger TR_MinWageEnforce_Update
+on Zone
+for Insert, Update
+as
+if update(Wage) and @@ROWCOUNT > 0
+		
+		begin
+				if exists (select * from inserted inner join deleted on inserted.ZoneID = deleted.ZoneID
+		        where inserted.Wage < 15)
+						
+						update Zone
+						set Wage = 15
+						where wage < 15
+						print ('Managers wage has been updated')
+	   
+				end
+				  
+		
+return
 
---go
+go
+
+select * from Zone
+update zone
+set Wage = 10
+where ZoneID = 4
