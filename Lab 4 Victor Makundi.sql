@@ -82,5 +82,10 @@ go
 --QUESTION 5: Ensure that a route is not deleted if the route has customers. Should the route have customers,
 --raise an error and do not allow the delete to occur. Disable the constraint(s) required to test this trigger
 --Also show the code to disable the constraints required to test ths trigger
+alter table Route
+nocheck constraint fk_RouteToRegion
+alter table Route
+nocheck constraint fk_RouteToDropSite
+go 
 
 --QUESTION 6: Minimum wage is $15/hour. if a Zone Manager's wage is reduced below $15 set it to be $15
