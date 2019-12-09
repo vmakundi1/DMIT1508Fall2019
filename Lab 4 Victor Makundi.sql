@@ -34,7 +34,7 @@ go
 
 --QUESTION 2: Ensure the Zone Manager's wage is not increased by more than 15% at a time.
 --should this be attempted, raise an error and do not allow the increase.
-alter Trigger TR_ZoneManagerWageIncrease_Update
+create Trigger TR_ZoneManagerWageIncrease_Update
 On Zone
 for Update
 as
@@ -78,6 +78,29 @@ go
 --QUESTION 4: Create a DeliveryTypeChanges table (not in a trigger). After an update is made where the value of the delivery-
 --charge changes, add a record to the table. Show the code for the trigger and the table
 
+Create Table DeliveryTypeChanges
+(
+	ChangeID int not null
+	constraint PK_DeliveryTypeChanges primary key clustered,
+	ChangeDateTime datetime not null,
+	DeliveryTypeDescription varchar(10) not null,
+	OldDeliveryCharge smallmoney not null,
+	NewDeliveryCharge smallmoney not null
+	
+)
+
+Create Trigger TR_DeliveryChargeChangesValues_Update
+On DeliveryTypeChanges
+for Update
+as
+if Update(OldDeliveryCharges) AND @@ROWCOUNT > 0
+		Begin
+		insert into DeliveryTypeChanges( ChangeID, ChangeDateTime, DeliveryTypeDescription, OldDeliveryCharge, NewDeliveryCharge)
+		select inserted.ChangeID, getdate(), 
+		end
+
+
+
 
 --QUESTION 5: Ensure that a route is not deleted if the route has customers. Should the route have customers,
 --raise an error and do not allow the delete to occur. Disable the constraint(s) required to test this trigger
@@ -86,6 +109,47 @@ alter table Route
 nocheck constraint fk_RouteToRegion
 alter table Route
 nocheck constraint fk_RouteToDropSite
+alter table Customer
+nocheck constraint fK_CustomerToRoute
 go 
+create trigger TR_ValidateRouteDeletion_Delete
+On Route
+for delete
+as
+if @@ROWCOUNT > 0
+		Begin
+		if exists (select * from deleted inner join Customer on Deleted.RouteID = Customer.RouteID)
+				Begin
+				Raiserror ('Route has customers. Cannot delete', 16, 1)
+				Rollback transaction
+				end
+		end
+Return
+end
+go
+
+--select * from Route
+--delete Route where RouteID = 5
+
+--select Route.RouteID, count(CustomerID) as 'number of customers'  from Customer join Route on Customer.RouteID = Route.RouteID
+--group by Route.RouteID
+
 
 --QUESTION 6: Minimum wage is $15/hour. if a Zone Manager's wage is reduced below $15 set it to be $15
+
+--create trigger TR_MinWageEnforce_Update
+--on Zone
+--for Update
+--as
+--if update(Wage) and @@ROWCOUNT > 0
+--		Begin
+--		if exists (select * from inserted inner join deleted on inserted.ZoneID = deleted.ZoneID
+--		where inserted.Wage < 15)
+--				Begin
+--				Raiserror ('Sorry, zone manager wage cannot be increased by 15 percent', 16,1)
+--				Rollback transaction
+--				end
+--		End
+--return
+
+--go
